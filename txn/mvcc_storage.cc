@@ -145,8 +145,6 @@ void MVCCStorage::Write(Key key, Value value, int txn_unique_id) {
         if (temp == (*it)->version_id_){
           if (txn_unique_id == (*it)->version_id_){
             (*it)->value_ = value;
-            (*it)->max_read_id_ = txn_unique_id;
-            (*it)->version_id_ = txn_unique_id;
           }
           else{
             Version *new_ver = new Version;
