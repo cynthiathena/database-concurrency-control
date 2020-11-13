@@ -64,8 +64,8 @@ bool MVCCStorage::Read(Key key, Value* result, int txn_unique_id) {
     for (deque<Version*>::iterator it=versions.begin(); it!=versions.end(); ++it){
       if (((*it)->max_read_id_ < txn_unique_id) && (temp == (*it)->version_id_)) {
       (*it)->max_read_id_ = txn_unique_id;
-    }
-
+        break;
+      }
     }
   }
   // std::cout << "Read found : " << found << std::endl; 
@@ -153,6 +153,7 @@ void MVCCStorage::Write(Key key, Value value, int txn_unique_id) {
             new_ver->version_id_ = txn_unique_id;
             mvcc_data_[key]->push_back(new_ver);
           }
+          break;
         }
       }
     }
