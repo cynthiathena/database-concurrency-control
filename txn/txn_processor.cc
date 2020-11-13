@@ -387,6 +387,7 @@ void TxnProcessor::MVCCExecuteTxn(Txn* txn){
       if (storage_->Read(*it, &result, txn->unique_id_)){
         txn->reads_[*it] = result;
       }
+      storage_->Unlock(*it);
     }
 
     // std::cout << "Run" << std::endl << std::flush;  
