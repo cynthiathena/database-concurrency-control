@@ -30,3 +30,11 @@ void Storage::InitStorage() {
     Write(i, 0, 0);
   } 
 }
+
+void Storage::PrintStorage(){
+  std::cout << "\n";
+  for (unordered_map<Key, Value>::iterator it = data_.begin(); it != data_.end(); ++it){
+    std::cout << it->first << " " << it->second << " ";
+  }
+  std::cout << "\n";
+}

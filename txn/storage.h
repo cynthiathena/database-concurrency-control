@@ -38,6 +38,8 @@ class Storage {
   virtual void InitStorage();
   
   virtual ~Storage() {}
+
+  virtual void PrintStorage();
   
   // The following methods are only used for MVCC
   virtual void Lock(Key key) {}
