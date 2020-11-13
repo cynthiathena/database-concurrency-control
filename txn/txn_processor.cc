@@ -370,8 +370,7 @@ void TxnProcessor::RunMVCCScheduler() {
 void TxnProcessor::MVCCExecuteTxn(Txn* txn){
   //Read all necessary data for this transaction from storage (Note that you should lock the key before each read)
   // std::cout << "Read all datas" << std::endl << std::flush;  
-    for (set<Key>::iterator it = txn->readset_.begin();
-      it != txn->readset_.end(); ++it) {
+    for (set<Key>::iterator it = txn->readset_.begin(); it != txn->readset_.end(); ++it) {
         storage_->Lock(*it);
         Value result;
         if (storage_->Read(*it, &result, txn->unique_id_)) {
@@ -380,8 +379,7 @@ void TxnProcessor::MVCCExecuteTxn(Txn* txn){
         storage_->Unlock(*it);
       }
 
-    for (set<Key>::iterator it = txn->writeset_.begin();
-      it != txn->writeset_.end(); ++it) {
+    for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it) {
       storage_->Lock(*it);
       Value result;
       if (storage_->Read(*it, &result, txn->unique_id_)){
@@ -437,8 +435,7 @@ void TxnProcessor::MVCCExecuteTxn(Txn* txn){
 }
 
   bool TxnProcessor::MVCCCheckWrites(Txn* txn){
-    for (set<Key>::iterator it = txn->writeset_.begin();
-      it != txn->writeset_.end(); ++it) {
+    for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it) {
         if (!storage_->CheckWrite(*it, txn->unique_id_)){
           return false;
         }
@@ -447,15 +444,13 @@ void TxnProcessor::MVCCExecuteTxn(Txn* txn){
   }
 
   void TxnProcessor::MVCCLockWriteKeys(Txn* txn){
-    for (set<Key>::iterator it = txn->writeset_.begin();
-      it != txn->writeset_.end(); ++it) {
+    for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it) {
       storage_->Lock(*it);
     }
   }
 
   void TxnProcessor::MVCCUnlockWriteKeys(Txn* txn){
-    for (set<Key>::iterator it = txn->writeset_.begin();
-      it != txn->writeset_.end(); ++it) {
+    for (set<Key>::iterator it = txn->writeset_.begin(); it != txn->writeset_.end(); ++it) {
       storage_->Unlock(*it);
     }
   }
