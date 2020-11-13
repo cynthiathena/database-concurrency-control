@@ -304,23 +304,18 @@ void TxnProcessor::RunOCCScheduler() {
         bool valid = OCCValidateTransaction(*finished);
         if (!valid) {
           // Cleanup and restart
-          finished->reads_.empty();
-          finished->writes_.empty();
+          finished->reads_.clear();
+          finished->writes_.clear();
           finished->status_ = INCOMPLETE;
 
-          mutex_.Lock();
-          txn->unique_id_ = next_unique_id_;
-          next_unique_id_++;
-          txn_requests_.Push(finished);
-          mutex_.Unlock();
+          NewTxnRequest(finished);
         } else {
           // Commit the transaction
           ApplyWrites(finished);
-          txn->status_ = COMMITTED;
+          finished->status_ = COMMITTED;
+          txn_results_.Push(finished);
         }
       }
-
-      txn_results_.Push(finished);
     }
   }
 }
