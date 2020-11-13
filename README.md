@@ -1,0 +1,1 @@
+Untuk menjalankan program gunakan command "make test" pada terminal.
