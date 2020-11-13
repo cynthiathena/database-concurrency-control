@@ -51,20 +51,22 @@ bool MVCCStorage::Read(Key key, Value* result, int txn_unique_id) {
   // Hint: Iterate the version_lists and return the verion whose write timestamp
   // (version_id) is the largest write timestamp less than or equal to txn_unique_id.
   bool found = false;
-  if (mvcc_data_.count(key)){ 
+  if (mvcc_data_.count(key) && !(*mvcc_data_[key]).empty()){ 
     deque<Version*> versions = *mvcc_data_[key];
-    int temp = 0;
+    int temp = -1;
     for (deque<Version*>::iterator it=versions.begin(); it!=versions.end(); ++it){
       if (((*it)->version_id_ > temp) && ((*it)->version_id_<=txn_unique_id)){
         temp = (*it)->version_id_;
         *result = (*it)->value_;
         found = true;
-        if ((*it)->max_read_id_ < txn_unique_id) {
-          (*it)->max_read_id_ = txn_unique_id;
-        }
       }
     }
+    for (deque<Version*>::iterator it=versions.begin(); it!=versions.end(); ++it){
+      if (((*it)->max_read_id_ < txn_unique_id) && (temp = (*it)->version_id_)) {
+      (*it)->max_read_id_ = txn_unique_id;
+    }
 
+    }
   }
   // std::cout << "Read found : " << found << std::endl; 
   return found;
@@ -83,7 +85,7 @@ bool MVCCStorage::CheckWrite(Key key, int txn_unique_id) {
   // write_set. Return true if this key passes the check, return false if not. 
   // Note that you don't have to call Lock(key) in this method, just
   // call Lock(key) before you call this method and call Unlock(key) afterward.
-  if (mvcc_data_.count(key)){
+  if (mvcc_data_.count(key) && !(*mvcc_data_[key]).empty()){
     deque<Version*> versions = *mvcc_data_[key];
     int temp_write = -1;
     int temp_read = -1;
@@ -132,7 +134,7 @@ void MVCCStorage::Write(Key key, Value value, int txn_unique_id) {
     }
   else {
     deque<Version*> versions = *mvcc_data_[key];
-    // if (!versions.empty()){/
+    if (!versions.empty()){
       int temp = -1;
       for (deque<Version*>::iterator it=versions.begin(); it!=versions.end(); ++it){
         if (((*it)->version_id_ > temp) && ((*it)->version_id_<=txn_unique_id)){
@@ -154,7 +156,14 @@ void MVCCStorage::Write(Key key, Value value, int txn_unique_id) {
             mvcc_data_[key]->push_back(new_ver);
           }
         }
-      // }
+      }
+    }
+    else {
+      Version *new_ver = new Version;
+      new_ver->value_ = value;
+      new_ver->max_read_id_ = txn_unique_id;
+      new_ver->version_id_ = txn_unique_id;
+      mvcc_data_[key]->push_back(new_ver);
     }
 
   }

@@ -436,15 +436,13 @@ void TxnProcessor::MVCCExecuteTxn(Txn* txn){
 }
 
   bool TxnProcessor::MVCCCheckWrites(Txn* txn){
-    bool passed = true;
     for (set<Key>::iterator it = txn->writeset_.begin();
       it != txn->writeset_.end(); ++it) {
         if (!storage_->CheckWrite(*it, txn->unique_id_)){
-          passed = false;
-          break ;
+          return false;
         }
     }
-    return passed;
+    return true;
   }
 
   void TxnProcessor::MVCCLockWriteKeys(Txn* txn){
